@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DRAM Factory Tycoon — The Memory Allocation Crisis</title>
+<meta name="description" content="DRAM Factory Tycoon: an AP Microeconomics Unit 1 + Unit 2 inquiry simulation about conventional DRAM scarcity, the PC market, and policy design.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span class="brand-text">
+      <strong>DRAM Factory Tycoon</strong>
+      <span class="brand-sub">The Memory Allocation Crisis &middot; 2026</span>
+    </span>
+  </div>
+  <nav class="mainnav" aria-label="Main navigation">
+    <button type="button" class="navbtn" data-screen="game">Factory</button>
+    <button type="button" class="navbtn" data-screen="brief">Policy Brief</button>
+    <button type="button" class="navbtn" data-screen="graphs">Graph Gallery</button>
+    <button type="button" class="navbtn" data-screen="evidence">Evidence</button>
+    <button type="button" class="navbtn" data-screen="glossary">Glossary</button>
+    <button type="button" class="navbtn" data-screen="quiz">Knowledge Check</button>
+    <button type="button" class="navbtn navbtn-pause" id="btn-pause" aria-pressed="false">Pause</button>
+    <button type="button" class="navbtn navbtn-danger" id="btn-reset">Reset Game</button>
+    <button type="button" class="navbtn" id="btn-diagnostics">Diagnostics</button>
+  </nav>
+</header>
+
+<main id="main-content">
+
+  <!-- ============================ TITLE SCREEN ============================ -->
+  <section class="screen is-active" id="screen-title" aria-labelledby="title-heading">
+    <div class="title-wrap">
+      <p class="eyebrow">AP Microeconomics &middot; Unit 1 + Unit 2 Inquiry Simulation</p>
+      <h1 id="title-heading">DRAM Factory Tycoon</h1>
+      <p class="subtitle">The Memory Allocation Crisis &mdash; Scenario year 2026</p>
+
+      <div class="title-cols">
+        <div class="title-card">
+          <h2>The situation</h2>
+          <p>Conventional DRAM &mdash; the DDR4 and DDR5 memory used in PCs and laptops &mdash; is increasingly scarce and expensive in 2026, even as major manufacturers expand. Suppliers are directing scarce wafer and cleanroom capacity toward high-margin HBM and server memory, while every new fabrication plant takes years of construction and qualification before it ships a single bit.</p>
+          <p class="note">Every number in this simulation is an illustrative teaching parameter. The real-world evidence sits in the <strong>Policy Brief</strong>, <strong>Evidence</strong> and <strong>Graph Gallery</strong>.</p>
+        </div>
+        <div class="title-card">
+          <h2>Your role</h2>
+          <p>You run the allocation, production and investment decisions of one memory plant in a simplified model of the global industry. You decide how a finite pool of shared resources is split between conventional DRAM and HBM, you commit capital to future capacity, and you recommend how government should respond.</p>
+          <p>There is no single move that maximises every objective. You will trade off supply, profit, resilience, server customers and public money &mdash; and then explain the trade-off.</p>
+        </div>
+      </div>
+
+      <div class="title-actions">
+        <button type="button" class="btn btn-primary btn-large" id="btn-start">Start Game</button>
+        <button type="button" class="btn" data-screen="brief">Read the Policy Brief</button>
+        <button type="button" class="btn" data-screen="graphs">Graph Gallery</button>
+        <button type="button" class="btn" data-screen="evidence">Evidence &amp; Sources</button>
+        <button type="button" class="btn" data-screen="glossary">Glossary</button>
+        <button type="button" class="btn" data-screen="quiz">Knowledge Check</button>
+      </div>
+
+      <div class="controls-box">
+        <h3>Controls</h3>
+        <ul class="controls-list">
+          <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or <kbd>&larr;</kbd><kbd>&uarr;</kbd><kbd>&rarr;</kbd><kbd>&darr;</kbd> &mdash; move</li>
+          <li><kbd>E</kbd> &mdash; interact with the nearest station</li>
+          <li><kbd>Esc</kbd> &mdash; close the open panel</li>
+          <li><kbd>Click</kbd> a station &mdash; open its panel</li>
+          <li><kbd>P</kbd> or the <strong>Pause</strong> button &mdash; pause the simulation</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ GAME SCREEN ============================ -->
+  <section class="screen" id="screen-game" aria-labelledby="game-heading" hidden>
+    <h2 class="visually-hidden" id="game-heading">Factory floor simulation</h2>
+
+    <div class="hud" role="region" aria-label="Scenario status">
+      <div class="hud-cell"><span class="hud-label">Period</span><span class="hud-value" id="hud-period">&mdash;</span></div>
+      <div class="hud-cell"><span class="hud-label">Credits</span><span class="hud-value" id="hud-credits">&mdash;</span></div>
+      <div class="hud-cell"><span class="hud-label">Capacity tokens</span><span class="hud-value" id="hud-capacity">&mdash;</span></div>
+      <div class="hud-cell"><span class="hud-label">Conventional output</span><span class="hud-value" id="hud-conv">&mdash;</span></div>
+      <div class="hud-cell"><span class="hud-label">HBM output</span><span class="hud-value" id="hud-hbm">&mdash;</span></div>
+      <div class="hud-cell"><span class="hud-label">Conventional shortage</span><span class="hud-value" id="hud-shortage">&mdash;</span></div>
+      <div class="hud-cell"><span class="hud-label">PC orders filled</span><span class="hud-value" id="hud-pcfill">&mdash;</span></div>
+    </div>
+
+    <div class="game-layout">
+      <div class="canvas-wrap">
+        <canvas id="game-canvas" width="960" height="560" tabindex="0"
+                aria-label="Top-down factory floor. Use W A S D or arrow keys to move, E to interact with a station."></canvas>
+        <div class="canvas-overlay" id="canvas-overlay" hidden>
+          <div class="overlay-box">
+            <h3 id="overlay-title">Paused</h3>
+            <p id="overlay-text">The simulation is paused.</p>
+            <button type="button" class="btn btn-primary" id="btn-overlay-resume">Resume</button>
+          </div>
+        </div>
+        <p class="interaction-prompt" id="interaction-prompt" role="status" aria-live="polite"></p>
+      </div>
+
+      <aside class="side-panel" aria-label="Scenario objectives and notes">
+        <h3>Scenario objectives</h3>
+        <ol class="stage-list" id="stage-list">
+          <li data-stage="1"><span class="stage-name">Understand the constraint</span><span class="stage-status">Pending</span></li>
+          <li data-stage="2"><span class="stage-name">Allocate shared resources</span><span class="stage-status">Pending</span></li>
+          <li data-stage="3"><span class="stage-name">Run a production cycle</span><span class="stage-status">Pending</span></li>
+          <li data-stage="4"><span class="stage-name">Read the market</span><span class="stage-status">Pending</span></li>
+          <li data-stage="5"><span class="stage-name">Commit long-run investment</span><span class="stage-status">Pending</span></li>
+          <li data-stage="6"><span class="stage-name">Recommend a policy</span><span class="stage-status">Pending</span></li>
+          <li data-stage="7"><span class="stage-name">Debrief</span><span class="stage-status">Pending</span></li>
+        </ol>
+        <div class="side-block">
+          <h4>Period log</h4>
+          <ul class="mini-log" id="period-log"><li class="muted">No production cycles yet.</li></ul>
+        </div>
+        <div class="side-block">
+          <h4>Model note</h4>
+          <p class="tiny">All quantities, prices, costs and elasticities in the factory simulation are <strong>fictional illustrative parameters</strong>, not observed DRAM industry data or measured elasticity coefficients.</p>
+        </div>
+        <button type="button" class="btn btn-block" id="btn-debrief" disabled>Open Debrief</button>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================ POLICY BRIEF ============================ -->
+  <section class="screen" id="screen-brief" aria-labelledby="brief-heading" hidden>
+    <div class="print-toolbar no-print">
+      <button type="button" class="btn" id="btn-print-brief">Print / Save as PDF (A4)</button>
+      <button type="button" class="btn" id="btn-print-check">Check printed length</button>
+      <span class="tiny" id="print-check-result">The brief prints as an A4 document with citations and the evidence chart.</span>
+    </div>
+
+                                                                        <article class="brief" id="brief-article">
+      <header class="brief-head">
+        <h1 id="brief-heading">Policy Brief: The Conventional DRAM Scarcity Crisis</h1>
+        <p class="brief-meta"><strong>To:</strong> policymakers responsible for semiconductor supply, industrial policy and technology access. <strong>Subject:</strong> why conventional DRAM is scarce in 2026, and what government should do about it. &middot; AP Microeconomics Unit 1 + Unit 2 Combined Inquiry &middot; Scenario year 2026 &middot; Prepared for the ASIJ economics programme</p>
+        <p class="brief-question"><strong>Overarching inquiry question:</strong> Why is conventional DRAM increasingly scarce for consumer electronics, despite growing demand and the presence of major semiconductor manufacturers, and why is this scarcity so difficult to resolve?</p>
+        <p class="brief-question"><strong>Market 1 (conventional DRAM):</strong> How do AI/server demand and manufacturers&rsquo; resource-allocation decisions affect the short- and long-run supply of conventional DDR4/DDR5 DRAM?</p>
+        <p class="brief-question"><strong>Market 2 (PCs and laptops):</strong> How do conventional DRAM cost and availability changes affect PC/laptop supply, prices, shipment volume and buyer responses?</p>
+      </header>
+
+      <h2>Executive Summary</h2>
+      <p>Conventional DRAM &mdash; the DDR4 and DDR5 memory in PCs and laptops &mdash; is scarce in 2026 even as manufacturers expand. No single cause: demand grows, suppliers shift capacity to higher-margin HBM, inputs are constrained, and capacity responds slowly (2026).</p>
+      <p>This brief analyses conventional DRAM (Market 1) and PCs and laptops (Market 2) and recommends a milestone-conditioned upstream incentive for additional conventional DRAM output, with consumer assistance narrow. Public support is never free: it costs taxpayers, may be captured by producers and risks excess capacity.</p>
+
+      <h2>Introduction</h2>
+      <p><strong>Scarcity is the underlying condition; a shortage is only a symptom.</strong> Finite resources and effectively unlimited wants give every allocation an opportunity cost. A shortage is an outcome in which quantity demanded exceeds quantity supplied at a given price &mdash; one a higher price and lower quantity can clear without removing the constraint: cleanroom space, engineers, lead times.</p>
+      <p><strong>Why it matters for PCs.</strong> Memory prices raise PC costs, shift PC supply leftward and cut shipments.</p>
+      <p><strong>Why it persists, and why that is not proof of market failure.</strong> These developments primarily demonstrate a production-capacity and adjustment-lag problem; they do not, by themselves, prove market failure. However, supplier concentration may create market-power concerns, while supply-chain resilience can generate wider social benefits that private firms do not fully capture. These are potential market-failure channels, not proof of collusion or price fixing. Government intervention should therefore be evaluated against its fiscal and efficiency costs.</p>
+
+      <h2>Methodology</h2>
+      <p>This brief analyses the conventional DRAM and PC/laptop markets using published research, corporate filings and five models (Graphs 1&ndash;5). Unit 1 concepts (scarcity, opportunity cost, trade-offs, factors of production, economic systems, comparative advantage, values, marginal analysis) and Unit 2 concepts (supply and demand, determinants, equilibrium, surplus, elasticity, subsidies) are applied throughout. Model values are illustrative teaching indices; no numerical elasticity is asserted.</p>
+
+      <h2>Research, Data, Summaries, and Conclusions</h2>
+
+      <h3>Claim 1 &mdash; Overall scarcity: the shortage is structural.</h3>
+      <p><strong>Data.</strong> TrendForce reported historic-low inventories, server-allocated supply and contract prices projected to rise 13&ndash;18% in Q3 and 10&ndash;15% in Q4 2026 (September 2026). <strong>Concept.</strong> Scarcity is the condition, the shortage the signal; diverting capacity to HBM is an opportunity-cost decision. <strong>Graphs 1&ndash;2.</strong> Forecasts, not outcomes; policy must address capacity.</p>
+
+      <h3>Claim 2 &mdash; DRAM relevance: DRAM is upstream of what buyers buy.</h3>
+      <p><strong>Data.</strong> Micron states HBM needs more wafers and cleanroom space than conventional DRAM for the same bits (September 3, 2026); the top three suppliers hold roughly 87% of global DRAM revenue (Counterpoint Research, September 2, 2026). <strong>Concept.</strong> Derived demand: DRAM is an input to consumer goods; DDR4 and DDR5 are not interchangeable because platform compatibility segments buyers. In an oligopoly, few suppliers can align output to higher prices, so supply is less responsive. <strong>Limits.</strong> Relative intensity, not a measured ratio; revenue shares are not physical output shares. <strong>Graphs 1&ndash;2.</strong> The constraint is upstream.</p>
+
+      <h3>Claim 3 &mdash; DRAM change and elasticity: inelastic short run, elastic long run.</h3>
+      <p><strong>Data.</strong> Micron&rsquo;s projected fab timelines (mid-2027, late 2028, 2030) show how slowly capacity arrives (September 2026); inventories were at historic lows (TrendForce, 2026). <strong>Concept.</strong> PES = % change in quantity supplied / % change in price. Installed capacity and trained labour cannot change quickly, so short-run PES is relatively inelastic; as firms expand and improve yields, long-run PES is more elastic. Non-price supply determinants &mdash; technology, yields, labour, capital, allocation priorities &mdash; and demand determinants such as expectations and stockpiling shift the curves, leaving a disequilibrium shortage at the old price. Higher prices cut consumer surplus; producer surplus is ambiguous, because higher prices are offset by lower volumes, higher costs and a mix shift to HBM. <strong>Cross-elasticity.</strong> DRAM is a complement to PCs and servers, so higher PC prices cut derived demand; income growth raises DRAM demand, though buyers switch to lower-memory configurations. <strong>Limits.</strong> Qualitative only. <strong>Graph 2.</strong> Why it persists.</p>
+
+      <h3>Claim 4 &mdash; DRAM intervention: an incentive targets the constraint, at a cost.</h3>
+      <p><strong>Data.</strong> Micron documents new capacity&rsquo;s wafer, cleanroom, capital and lead-time requirements (September 3, 2026); the GAO reports $13.1 billion disbursed &mdash; about 42% of direct funding &mdash; with some milestones behind schedule (GAO-26-109121, August 2026). <strong>Concept.</strong> A per-unit subsidy s creates a wedge, Pp = Pc + s. <strong>Incidence:</strong> with inelastic short-run supply producers capture most of it; as capacity responds, quantity rises and pass-through improves. Expenditure covers eligible units only; deadweight loss arises if output exceeds its social value; resilience spillovers may justify it; excess capacity is the risk. <strong>Limits.</strong> Grants are not per-unit subsidies. <strong>Graph 3.</strong> Upstream is where leverage is.</p>
+
+      <h3>Claim 5 &mdash; PC relevance: memory costs feed into PC prices.</h3>
+      <p><strong>Data.</strong> Gartner&rsquo;s preliminary estimate put Q3 2026 PC shipments at 55.351 million units against 71.301 million a year earlier &mdash; down 22.4% &mdash; on component cost inflation (October 2026); Omdia put the combined DRAM and SSD cost share of PCs near 40% (October 2026). <strong>Concept.</strong> A higher input cost shifts PC supply leftward and upward. <strong>Limits.</strong> Channel estimates, not quantity demanded; the firms&rsquo; definitions differ, so totals must not be combined. <strong>Graph 4.</strong> The consumer cost.</p>
+
+      <h3>Claim 6 &mdash; PC change and elasticity: one price rise, different responses.</h3>
+      <p><strong>Data.</strong> Gartner attributes part of the Q3 2026 decline to cost inflation raising selling prices; Omdia adds pull-forward demand as a partial cause (October 2026). <strong>Concept.</strong> PED = % change in quantity demanded / % change in price. Buyers who can delay, extend a device&rsquo;s life, buy used or refurbished models or choose lower-memory configurations are more responsive than urgent buyers. Used PCs are substitutes for new ones (positive XED); PCs can be normal goods (positive YED). Non-price demand determinants &mdash; replacement cycles, income and product mix &mdash; and supply determinants &mdash; assembly capacity, component availability, DRAM costs &mdash; move the curves. Higher PC prices cut consumer surplus; producer surplus is ambiguous, because PC makers gain a higher price per unit but sell fewer and pay more for DRAM. <strong>Limits.</strong> No numerical PED, XED or YED. <strong>Graph 4.</strong> One elasticity misleads policy.</p>
+
+      <h3>Claim 7 &mdash; PC intervention: a voucher helps access but worsens the bottleneck.</h3>
+      <p><strong>Concept.</strong> A voucher shifts demand for eligible buyers; sellers may capture part through higher prices, non-eligible buyers may face more, and inelastic short-run supply limits pass-through. Because PC demand is derived demand for DRAM, a voucher adds pressure to an already constrained market. Fiscal cost, opportunity cost and deadweight loss must be weighed against the access externality. <strong>Evaluation.</strong> Narrow, temporary assistance &mdash; ideally toward refurbished devices or repairs that use fewer DRAM bits &mdash; is defensible; a broad subsidy is not. <strong>Graph 5.</strong> Helping buyers can intensify the scarcity.</p>
+
+      <h2>Analysis of Content</h2>
+      <p><strong>Why the problem exists.</strong> The DRAM market clears, but the constraint is physical: HBM earns more per scarce capacity, so suppliers allocate it there and conventional bits cost more. Because supply cannot expand quickly, the result is a higher price and a smaller market, not a vanished one (Graphs 2 and 4). Graph 1&rsquo;s production possibilities curve shows the same trade-off: more conventional DRAM means less HBM, because the resources are only partly shared.</p>
+      <p><strong>Why it resists solutions.</strong> The three allocation questions decide who gets scarce capacity; the market system answers them by price: what to produce, how, and for whom &mdash; buyers who can pay more (Graph 1). Central planning could coordinate investment but faces coordination, information and incentive problems. Hypothetically &mdash; illustrative figures, not supplier data &mdash; Factory A can make 10 conventional batches or 5 HBM batches, and Factory B 6 or 2. A has the absolute advantage in both; A&rsquo;s opportunity cost of an HBM batch is 2 conventional batches against B&rsquo;s 3, so A has the comparative advantage in HBM, while B&rsquo;s is one-third of an HBM batch against A&rsquo;s half, so B has it in conventional DRAM.</p>
+      <p><strong>The values in tension.</strong> Factors of production all bind &mdash; land (sites, silicon, water, power), labour (engineers), capital (fabs, cleanrooms, tools) and entrepreneurship (product strategy) &mdash; but capital binds hardest. Socioeconomic values pull apart: more capacity improves resilience and creates jobs but demands public money, power and water, and AI memory supports innovation yet tightens availability. Firms invest while expected marginal benefit exceeds marginal cost; government weighs resilience spillovers against taxpayers&rsquo; opportunity cost, and equity is why access cannot be left to price.</p>
+
+      <h2>Recommendations</h2>
+      <p><strong>1. Lead with a conditional upstream producer incentive.</strong> A temporary production credit or investment tax credit for <em>additional</em> conventional DDR4/DDR5 output from verified new or expanded capacity, tied to output or to construction, qualification and shipment milestones, released in stages, with reporting, review and clawbacks. <em>Who benefits:</em> DRAM and PC buyers. <em>Who pays:</em> taxpayers, some recaptured as supply grows. <em>Mechanism:</em> it raises the expected return on conventional capacity, so investment happens. <em>Unintended consequences:</em> deadweight loss, excess capacity if demand falls, and capture by firms that would have invested anyway.</p>
+      <p><strong>2. Keep consumer assistance narrow and temporary.</strong> A small time-limited voucher for students or lower-income households with verified access needs is defensible, ideally toward refurbished devices or repairs. <em>Who benefits:</em> eligible households, with a possible education and productivity externality. <em>Who pays:</em> taxpayers; non-eligible buyers may face higher prices as sellers capture part of the voucher. <em>Risk:</em> it raises derived demand for DRAM while supply is constrained, so a broad subsidy can intensify the shortage.</p>
+      <p><strong>3. Qualify and fund transparently.</strong> Require new or expanded capacity, additional conventional bits attributable to it, and manufacturing in the relevant region; support should add to, not replace, private capital expenditure. The GAO&rsquo;s finding that CHIPS milestones ran behind schedule (GAO-26-109121) argues for staged disbursement.</p>
+
+      <h2>Measurement</h2>
+      <p><strong>Producer incentive, quarterly:</strong> additional conventional bits shipped from supported capacity against a pre-policy baseline; newly qualified capacity and wafer starts; yields and utilisation; milestone completion and time to production; buyer inventories, lead times, contract prices; subsidy cost per incremental bit. Announced investment and money spent are inputs, not outcomes; publish no target before a baseline exists.</p>
+      <p><strong>PC voucher:</strong> recipients gaining access to a functioning computer; their out-of-pocket prices; device capability; redemption and administrative costs; retailer pass-through; and whether added demand pressures new DRAM supply.</p>
+      <p><strong>Wider trade-offs:</strong> energy and water use, emissions, and employment created or displaced. Require annual independent review and a three-year sunset unless benefits justify renewal.</p>
+
+      <h2>References</h2>
+      <ol class="references">
+        <li>Micron Technology, Inc. <em>Annual Report on Form 10-K for the fiscal year ended September 3, 2026</em>, filed with the U.S. Securities and Exchange Commission, September 3, 2026. <a href="https://www.sec.gov/Archives/edgar/data/723125/000072312526000023/mu-20260903.htm">sec.gov &rarr; mu-20260903.htm</a></li>
+        <li>TrendForce. <em>DRAM Industry Revenue Rises 59.5% QoQ in 2Q26 as Supply Expansion Continues to Lag Demand Growth, Says TrendForce</em>, September 7, 2026. <a href="https://www.trendforce.com/presscenter/news/20260907-13219.html">trendforce.com &rarr; 20260907</a></li>
+        <li>TrendForce. <em>AI Server Demand Sustains Memory Contract Price Increases in 4Q26, While Consumer-Side Pressure Persists</em>, September 30, 2026. <a href="https://www.trendforce.com/presscenter/news/20260930-13258.html">trendforce.com &rarr; 20260930</a></li>
+        <li>Counterpoint Research. <em>Global DRAM and HBM Market Share: Quarterly</em>, September 2, 2026. <a href="https://counterpointresearch.com/cn/insights/global-dram-and-hbm-market-share">counterpointresearch.com &rarr; DRAM and HBM share</a></li>
+        <li>Gartner, Inc. <em>Gartner Says Worldwide PC Shipments Declined 22.4% in Third Quarter of 2026 As Component Cost Inflation Raised ASPs</em>, October 12, 2026. <a href="https://www.gartner.com/en/newsroom/press-releases/2026-10-12-gartner-says-worldwide-pc-shipments-declined-22-point-4-percent-in-third-quarter-of-2026-as-component-cost-inflation-raised-asps">gartner.com &rarr; Q3 2026 PC shipments</a></li>
+        <li>Omdia. <em>Global PC shipments fall 21% in 3Q26 as pull-forward demand subsides</em>, October 9, 2026. <a href="https://omdia.tech.informa.com/pr/2026/oct/global-pc-shipments-fall-21percent-in-3q26-as-pull-forward-demand-subsides">omdia.tech.informa.com &rarr; Q3 2026</a></li>
+        <li>U.S. Government Accountability Office. <em>Semiconductors: Commerce Needs Plan to Meet CHIPS for America R&amp;D Requirements</em>, GAO-26-109121, August 6, 2026. <a href="https://www.gao.gov/products/gao-26-109121">gao.gov &rarr; GAO-26-109121</a></li>
+      </ol>
+      <p class="brief-foot tiny">All five diagrams use illustrative index values and are conceptual teaching models, not empirical data plots; game prices, costs and elasticities are fictional simulation assumptions. The evidence bank and PC shipment chart are on the Evidence screen.</p>
+    </article>
+  </section>
+
+  <!-- ============================ GRAPH GALLERY ============================ -->
+  <section class="screen" id="screen-graphs" aria-labelledby="graphs-heading" hidden>
+    <h2 id="graphs-heading">Graph Gallery</h2>
+    <p class="lede">Five economic models, generated mathematically as SVG from the equations shown. All quantities and prices are <strong>illustrative index values</strong>, not observed industry data. Each graph is linked to the claim it supports.</p>
+    <nav class="graph-tabs" id="graph-tabs" aria-label="Graph selection">
+      <button type="button" class="tabbtn is-active" data-graph="g1">1. Production Possibilities Curve</button>
+      <button type="button" class="tabbtn" data-graph="g2">2. Conventional DRAM Supply &amp; Demand</button>
+      <button type="button" class="tabbtn" data-graph="g3">3. DRAM Producer Incentive</button>
+      <button type="button" class="tabbtn" data-graph="g4">4. PC Market Supply &amp; Demand</button>
+      <button type="button" class="tabbtn" data-graph="g5">5. PC Consumer Voucher</button>
+    </nav>
+    <div class="graph-stage" id="graph-stage"><!-- rendered by JS --></div>
+    <div class="graph-card" id="graph-card"><!-- rendered by JS --></div>
+  </section>
+
+  <!-- ============================ EVIDENCE ============================ -->
+  <section class="screen" id="screen-evidence" aria-labelledby="evidence-heading" hidden>
+    <h2 id="evidence-heading">Evidence Bank</h2>
+    <p class="lede">Seven verified sources. Each card states the organisation, publication date, finding, limitation and relevance to the project. Forecasts, projections, preliminary estimates and reported outcomes are labelled separately.</p>
+
+    <h3>Real-world data chart</h3>
+    <div class="card">
+      <h4>Worldwide PC shipments, Q3 2025 vs Q3 2026</h4>
+      <div id="gartner-chart" class="chart-holder"></div>
+      <p class="caption">Gartner preliminary channel shipment estimates. These are shipments, not final consumer purchases and not a direct measure of quantity demanded; the change cannot be attributed to DRAM alone. <span class="cite">Source: Gartner, October 12, 2026.</span></p>
+    </div>
+
+    <h3>Source cards</h3>
+    <div class="evidence-grid" id="evidence-grid"><!-- rendered by JS --></div>
+
+    <h3>The seven claims</h3>
+    <ol class="claims-list" id="claims-list"><!-- rendered by JS --></ol>
+  </section>
+
+  <!-- ============================ GLOSSARY ============================ -->
+  <section class="screen" id="screen-glossary" aria-labelledby="glossary-heading" hidden>
+    <h2 id="glossary-heading">Glossary</h2>
+    <p class="lede">Twenty-five key terms, each defined in plain language and tied to the DRAM and PC scenario.</p>
+    <div class="glossary-tools">
+      <label for="glossary-search" class="visually-hidden">Search glossary</label>
+      <input type="search" id="glossary-search" placeholder="Search terms or definitions&hellip;" autocomplete="off">
+      <span class="tiny" id="glossary-count"></span>
+    </div>
+    <dl class="glossary" id="glossary-list"><!-- rendered by JS --></dl>
+  </section>
+
+  <!-- ============================ KNOWLEDGE CHECK ============================ -->
+  <section class="screen" id="screen-quiz" aria-labelledby="quiz-heading" hidden>
+    <h2 id="quiz-heading">Knowledge Check</h2>
+    <p class="lede">Eight reasoning questions. An explanation appears after every answer, and you may retry any question.</p>
+    <div id="quiz-container" class="quiz-container"><!-- rendered by JS --></div>
+    <div class="card" id="quiz-result" hidden>
+      <h4>Result</h4>
+      <p id="quiz-result-text"></p>
+      <button type="button" class="btn" id="btn-quiz-retry">Retry all questions</button>
+    </div>
+  </section>
+
+  <!-- ============================ DEBRIEF ============================ -->
+  <section class="screen" id="screen-debrief" aria-labelledby="debrief-heading" hidden>
+    <h2 id="debrief-heading">Debrief &amp; Final Evaluation</h2>
+    <div id="debrief-content"><!-- rendered by JS --></div>
+    <div class="no-print debrief-actions">
+      <button type="button" class="btn btn-primary" id="btn-replay">Replay (same policy, new run)</button>
+      <button type="button" class="btn" id="btn-reset-2">Reset Game</button>
+      <button type="button" class="btn" data-screen="brief">Read the Policy Brief</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============================ MODAL ============================ -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+  <div class="modal-card">
+    <header class="modal-head">
+      <h2 id="modal-title">Panel</h2>
+      <button type="button" class="btn btn-icon" id="modal-close" aria-label="Close panel (Escape)">&times;</button>
+    </header>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="js/data.js"></script>
+<script src="js/economy.js"></script>
+<script src="js/graphs.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/tests.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
